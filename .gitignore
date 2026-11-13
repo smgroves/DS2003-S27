@@ -1,0 +1,39 @@
+.DS_Store
+.claude/
+__pycache__/
+~$*
+Private/
+
+# Answer-key / instructor-filled files — never publish these publicly
+*_filled_*.ipynb
+*-KEY.*
+
+# Too large for GitHub (100MB limit) — likely has embedded video; host separately if needed
+Lectures/03-Why we visualize.pptx
+
+# Prior-course (Alvarado) source material used to build Lab 01 — not the published lab
+# itself (W02-W-activity1-KEY is an answer key; W02-F-activity1 is a penguins-dataset
+# worked demo). Keep locally for reference only.
+Labs/W02-W-activity1-KEY.ipynb
+Labs/W02-F-activity1.ipynb
+
+# More answer keys / instructor-only material (naming varies)
+*_key_*
+*_completed*
+Quizzes and answer keys/
+Class activities/attribute types.docx
+Class activities/Gestalt_Activity_Charts/
+Class activities/Subway maps/*-KEY.md
+# has student names
+Class activities/data_for_bad_charts/Charts for bad chart redesign.docx
+
+# Slides are published as PDFs (Lectures/pdf/); keep the .pptx sources out of the public repo
+Lectures/*.pptx
+Lectures/unused/
+Labs/unused/
+# zips that bundle an answer key
+Labs/Lab 0/Lab0.zip
+Labs/Lab4/Lab4_Bako.zip
+Labs/Lab 0/test.py
+# has student names
+Class activities/Statistical plots and Uncertainty example questions.docx

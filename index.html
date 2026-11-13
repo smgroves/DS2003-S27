@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DS 2003 &middot; Communicating with Data</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@700&display=swap">
+<style>
+:root {
+  --ink: #1c1c1c; --mute: #6f6f6f; --line: #dcdcdc; --paper: #ffffff; --bg: #f6f6f6;
+  --purple: #b509ac; --purple-dark: #7d0677; --purple-tint: #fbeefa; --purple-light: #ecc2e9;
+  --due: #b71c1c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 "Source Sans 3", "Segoe UI", system-ui, sans-serif; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 18px 60px; }
+h1 { font: 700 30px/1.15 "Source Serif 4", Georgia, serif; margin: 0; }
+.info { margin: 6px 0 2px; } .oh { color: var(--mute); font-size: 13.5px; margin: 0 0 10px; }
+a { color: var(--purple); text-underline-offset: 2px; }
+a:hover { color: var(--purple-dark); }
+.blurb { max-width: 720px; }
+nav.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 18px 0 0; border-bottom: 2px solid var(--ink); }
+nav.tabs a { padding: 7px 16px; text-decoration: none; color: var(--ink); font-weight: 600;
+  border: 1px solid var(--line); border-bottom: none; border-radius: 6px 6px 0 0; background: var(--paper); }
+nav.tabs a.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.grid { display: grid; grid-template-columns: 110px repeat(2, 1fr); border: 1px solid var(--line); border-top: none; background: var(--paper); }
+.grid > div { border-bottom: 1px solid var(--line); padding: 8px 10px; min-width: 0; }
+.grid > div + div { border-left: 1px solid var(--line); }
+.grid .wk { font-weight: 700; } .grid .wk small { display: block; font-weight: normal; color: var(--mute); }
+.grid .wk .unit { display: block; font-weight: normal; font-size: 12px; color: var(--mute); margin-top: 4px; }
+.grid .hd { font-weight: 700; font-size: 13px; border-bottom: 2px solid var(--ink); background: var(--bg); }
+.cell .dt { font: 12px/1 ui-monospace, Menlo, monospace; color: var(--mute); margin-bottom: 4px; }
+.cell .t { font-weight: 600; }
+.cell .t a { color: var(--ink); text-decoration-color: var(--line); }
+.cell .t a:hover { color: var(--purple); text-decoration-color: currentColor; }
+.cell p { margin: 3px 0 0; font-size: 13.5px; }
+.cell p i { font-style: normal; font-size: 11px; font-weight: 700; color: var(--mute); margin-right: 4px; }
+.cell p.dl, .cell p.dl i { color: var(--due); }
+.sub { font-size: 12.5px; }
+.cell.off { color: var(--mute); font-style: italic; background: repeating-linear-gradient(135deg, #fafafa 0 6px, #f0f0f0 6px 12px); }
+.cell.later { color: #555; }
+.cell.next { box-shadow: inset 3px 0 0 var(--purple); background: #f3f3f3; }
+.ds { background: var(--paper); border: 1px solid var(--line); border-top: none; padding: 16px 18px; }
+.ds h2 { font: 700 19px/1.2 "Source Serif 4", Georgia, serif; margin: 0 0 4px; }
+.ds .size { font: 12px ui-monospace, Menlo, monospace; color: var(--mute); }
+.ds p { margin: 6px 0; max-width: 760px; }
+.ds ul { margin: 6px 0; padding-left: 20px; }
+.ds .used { font-size: 13.5px; color: var(--mute); }
+.ds code { font-size: 13px; background: var(--bg); padding: 1px 4px; border-radius: 3px; }
+.ds h3 { font-size: 14.5px; margin: 10px 0 2px; }
+.ds:target { box-shadow: inset 4px 0 0 var(--purple); }
+.unit-h { font: 700 21px/1.2 "Source Serif 4", Georgia, serif; margin: 28px 0 8px; }
+.when { background: var(--paper); border: 1px solid var(--line); border-bottom: 2px solid var(--ink); padding: 7px 18px; margin-top: 14px; font-weight: 700; }
+.ds img { max-width: 100%; height: auto; border: 1px solid var(--line); margin: 8px 12px 4px 0; vertical-align: top; }
+.ds .imgs { display: flex; flex-wrap: wrap; align-items: flex-start; }
+.ds .imgs img { max-width: min(100%, 560px); }
+.ds figure { margin: 8px 12px 4px 0; max-width: min(100%, 720px); }
+.ds figure img { max-width: 100%; margin: 0; }
+.ds figcaption { font-size: 13px; color: var(--mute); }
+@media (max-width: 760px) {
+  .grid { grid-template-columns: 1fr; } .grid .hd { display: none; }
+  .grid > div + div { border-left: none; } .grid .wk { background: var(--bg); border-top: 2px solid var(--ink); }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>DS 2003: Communicating with Data</h1>
+<p class="info">Spring 2027 &middot; Tue/Thu &middot; Sarah Groves &middot; <a href="DS2003_Computer_Setup_Guide.pdf">Computer setup guide</a> &middot; <a href="https://canvas.instructure.com">Canvas</a></p>
+<p class="oh">Office hours: TBA</p>
+<nav class="tabs"><a href="index.html" class=on>Schedule</a><a href="datasets.html">Datasets</a><a href="bad-charts.html">Bad Chart Examples</a><a href="figures.html">Scientific Figures</a></nav>
+
+<p class="blurb">Slides, labs, and in-class activities for the whole semester are linked below. Submissions and grades are on <a href="https://canvas.instructure.com">Canvas</a>. Anything past this week is tentative and will probably move around.</p>
+<div class="grid">
+<div class="hd"></div><div class="hd">Tuesday</div><div class="hd">Thursday</div>
+<div class="wk">Week 1<small>Jan 19–21</small><span class="unit">Unit 1: Exploratory visualization: the building blocks</span></div>
+<div class="cell off" data-date="2027-01-19"><div class="dt">Jan 19</div>No class (courses begin Wed 1/20)</div>
+<div class="cell" data-date="2027-01-21"><div class="dt">Jan 21 &middot; #1</div><div class="t"><a href="Lectures/pdf/01-Intro.pdf">Introduction</a>, <a href="Lectures/pdf/02_Lab0_python.pdf">Python setup</a></div><p><i>LAB</i>Lab 0: Python review <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab%200/Lab0_blank_python.ipynb">nbviewer</a> &middot; <a href="Labs/Lab%200/Lab0_blank_python.ipynb" download>download .ipynb</a>)</span></p><p><i>DATA</i><a href="datasets.html#penguins">penguins</a></p><p><i>READ</i><a href="DS2003_Computer_Setup_Guide.pdf">Computer setup guide</a></p><p class="dl"><i>DUE</i>Pre-course survey (Canvas); Lab 0 due Sun</p></div>
+<div class="wk">Week 2<small>Jan 26–28</small></div>
+<div class="cell" data-date="2027-01-26"><div class="dt">Jan 26 &middot; #2</div><div class="t"><a href="Lectures/pdf/03-Why%20we%20visualize.pdf">Why we visualize</a></div><p><i>CLASS</i><a href="Class%20activities/Subway%20maps/Subway_Map_Wayfinding_Activity.html">Getting Around NYC</a></p></div>
+<div class="cell" data-date="2027-01-28"><div class="dt">Jan 28 &middot; #3</div><div class="t"><a href="Lectures/pdf/04-VisualDesign-Data.pdf">Data types, tables &amp; models</a>, <a href="Lectures/pdf/05-Pandas_lab.pdf">Intro to pandas</a></div><p><i>CLASS</i>Levels of measurement sort, <a href="Class%20activities/simpsons-paradox/">Simpson&#x27;s Paradox</a></p><p><i>LAB</i>Lab 1: pandas &amp; data types <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab01/Lab01_blank_pandas.ipynb">nbviewer</a> &middot; <a href="Labs/Lab01/Lab01_blank_pandas.ipynb" download>download .ipynb</a>, <a href="Labs/Lab01/Lab01_Rubric.html">rubric</a>)</span></p><p><i>DATA</i><a href="datasets.html#volcanoes">volcanoes</a></p><p><i>READ</i><a href="Readings/3-TourThroughVisualizationZoo.pdf">A Tour through the Visualization Zoo</a></p><p class="dl"><i>DUE</i><a href="Project%201/Project1_Exploratory_Analysis.md">Project 1 assigned</a>; Lab 1 due Sun</p></div>
+<div class="wk">Week 3<small>Feb 2–4</small></div>
+<div class="cell" data-date="2027-02-02"><div class="dt">Feb 2 &middot; #4</div><div class="t"><a href="Lectures/pdf/06-VisualDesign-encodings%2B07%2Bmatplotlib_students.pdf">Visual encodings &amp; scale</a></div><p><i>READ</i>Vis Zoo discussion post</p></div>
+<div class="cell" data-date="2027-02-04"><div class="dt">Feb 4 &middot; #5</div><div class="t"><a href="Lectures/pdf/07-encodings_scale_part2.pdf">Encodings &amp; scale, day 2</a></div><p><i>CLASS</i>Decoding charts</p><p><i>LAB</i>Lab 2: grouping &amp; aggregating <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab02/Lab02_blank.ipynb">nbviewer</a> &middot; <a href="Labs/Lab02/Lab02_blank.ipynb" download>download .ipynb</a>)</span></p><p><i>DATA</i><a href="datasets.html#fastfood">fastfood</a>, <a href="datasets.html#flights">flights</a></p><p class="dl"><i>DUE</i>P1 topic &amp; dataset due Sun; Lab 2 due Sun</p></div>
+<div class="wk">Week 4<small>Feb 9–11</small></div>
+<div class="cell" data-date="2027-02-09"><div class="dt">Feb 9 &middot; #6</div><div class="t"><a href="Lectures/pdf/08-VisualDesign-Scale_Effectiveness%20Principles.pdf">Expressiveness &amp; effectiveness</a></div></div>
+<div class="cell" data-date="2027-02-11"><div class="dt">Feb 11 &middot; #7</div><div class="t"><a href="Lectures/pdf/09-color.pdf">Color</a>, <a href="Lectures/pdf/10_matplotlib_lab.pdf">Matplotlib</a></div><p><i>CLASS</i><a href="Class%20activities/colormap%20designer/Colormap%20Designer%20-%20Guided%20Sandbox.html">Colormap Designer: guided sandbox</a>, <a href="Class%20activities/colormap%20designer/Colormap%20Designer.html">Colormap Designer: assignment</a> <span class="sub">(notebook: <a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Class%20activities/colormap%20designer/colormap_making.ipynb">nbviewer</a> &middot; <a href="Class%20activities/colormap%20designer/colormap_making.ipynb" download>download .ipynb</a>)</span></p><p><i>LAB</i>Lab 3: anatomy of a figure <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab03/Lab03_blank_in%20class.ipynb">nbviewer</a> &middot; <a href="Labs/Lab03/Lab03_blank_in%20class.ipynb" download>download .ipynb</a>)</span></p><p><i>DATA</i><a href="datasets.html#penguins">penguins</a>, <a href="datasets.html#fastfood">fastfood</a>, <a href="datasets.html#flights">flights</a>, <a href="datasets.html#volcanoes">volcanoes</a></p><p class="dl"><i>DUE</i>Bad-viz discussion post due; Colormap activity due; End-of-unit-1 survey due Sat; Lab 3 due Sun</p></div>
+<div class="wk">Week 5<small>Feb 16–18</small></div>
+<div class="cell" data-date="2027-02-16"><div class="dt">Feb 16 &middot; #8</div><div class="t"><a href="Lectures/pdf/11-Perception-partI.pdf">Perception I</a></div></div>
+<div class="cell" data-date="2027-02-18"><div class="dt">Feb 18 &middot; #9</div><div class="t"><a href="Lectures/pdf/12-Perception-partII.pdf">Perception II: Gestalt principles</a></div><p><i>CLASS</i>One chart, one flaw</p><p><i>LAB</i>Lab 4: encodings, color &amp; chart types <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab4/Lab04_blank.ipynb">nbviewer</a> &middot; <a href="Labs/Lab4/Lab04_blank.ipynb" download>download .ipynb</a>)</span></p><p><i>DATA</i><a href="datasets.html#penguins">penguins</a>, <a href="datasets.html#flights">flights</a>, <a href="datasets.html#fastfood">fastfood</a></p><p><i>READ</i><a href="Readings/the_chartjunk_debate.pdf">The chartjunk debate</a></p><p class="dl"><i>DUE</i>Lab 4 due Sun</p></div>
+<div class="wk">Week 6<small>Feb 23–25</small></div>
+<div class="cell" data-date="2027-02-23"><div class="dt">Feb 23 &middot; #10</div><div class="t"><a href="Lectures/pdf/13-Visual%20Tasks.pdf">Visual tasks: from questions to sketches</a></div><p><i>CLASS</i>Question storm</p><p><i>DATA</i><a href="datasets.html#fastfood">fastfood</a></p></div>
+<div class="cell" data-date="2027-02-25"><div class="dt">Feb 25 &middot; #11</div><div class="t">Applications</div><p><i>CLASS</i><a href="Class%20activities/data_for_bad_charts/9_31_Fixing%20bad%20charts.docx">Fixing bad charts</a> <span class="sub">(<a href="bad-charts.html">charts</a>)</span></p><p><i>LAB</i>Lab 5: bad chart redesign <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab05/Lab05_blank_fixing_bad_design.ipynb">nbviewer</a> &middot; <a href="Labs/Lab05/Lab05_blank_fixing_bad_design.ipynb" download>download .ipynb</a>, <a href="bad-charts.html">charts</a>)</span></p><p><i>DATA</i><a href="datasets.html#bad-charts">bad-chart data</a></p><p class="dl"><i>DUE</i>P1 question sketches; Lab 5 due Sun</p></div>
+<div class="wk">Week 7<small>Mar 2–4</small></div>
+<div class="cell" data-date="2027-03-02"><div class="dt">Mar 2 &middot; #12</div><div class="t"><a href="Lectures/pdf/14-Statistical%20Plots%20and%20Uncertainty.pdf">Statistical plots &amp; uncertainty</a></div></div>
+<div class="cell" data-date="2027-03-04"><div class="dt">Mar 4 &middot; #13</div><div class="t">Lab 6: statistical plots <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab06/Lab06_blank.ipynb">nbviewer</a> &middot; <a href="Labs/Lab06/Lab06_blank.ipynb" download>download .ipynb</a>)</span></div><p><i>DATA</i><a href="datasets.html#penguins">penguins</a></p><p class="dl"><i>DUE</i>Lab 6 due Sun</p></div>
+<div class="wk">Week 8<small>Mar 9–11</small></div>
+<div class="cell off" data-date="2027-03-09"><div class="dt">Mar 9</div>No class (Spring recess)</div>
+<div class="cell off" data-date="2027-03-11"><div class="dt">Mar 11</div>No class (Spring recess)</div>
+<div class="wk">Week 9<small>Mar 16–18</small><span class="unit">Unit 2: Explanatory visualization: storytelling</span></div>
+<div class="cell" data-date="2027-03-16"><div class="dt">Mar 16 &middot; #14</div><div class="t">Project 1 presentations, day 1</div></div>
+<div class="cell" data-date="2027-03-18"><div class="dt">Mar 18 &middot; #15</div><div class="t">Project 1 presentations, day 2</div><p class="dl"><i>DUE</i>Project 1 due</p></div>
+<div class="wk">Week 10<small>Mar 23–25</small></div>
+<div class="cell" data-date="2027-03-23"><div class="dt">Mar 23 &middot; #16</div><div class="t"><a href="Lectures/pdf/15-Storytelling.pdf">Storytelling</a></div><p class="dl"><i>DUE</i><a href="Project%202/Project2_Interactive_Notebook.html">P2 introduced</a> <span class="sub">(<a href="Project%202/Project2_Rubric.html">rubric</a>)</span></p></div>
+<div class="cell" data-date="2027-03-25"><div class="dt">Mar 25 &middot; #17</div><div class="t"><a href="Lectures/pdf/16-Storytelling%20%26%20Interactivity.pdf">Narrative structures &amp; interaction: why &amp; when</a></div><p><i>CLASS</i><a href="hunt/record.html">Screenshot Hunt</a></p><p><i>LAB</i><a href="Labs/Lab07/Lab07_basketball_plotly.zip">Lab 7: interactive EDA with Plotly: NBA 2025-26 (notebook + data, .zip)</a></p><p><i>DATA</i><a href="datasets.html#nba">NBA</a></p><p><i>READ</i><a href="Readings/11-Narrative-InfoVis.pdf">Narrative Visualization (Segel &amp; Heer)</a></p><p class="dl"><i>DUE</i>P2 groups picked; P2 proposal due Sun; Lab 7 due Sun</p></div>
+<div class="wk">Week 11<small>Mar 30 – Apr 1</small></div>
+<div class="cell" data-date="2027-03-30"><div class="dt">Mar 30 &middot; #18</div><div class="t"><a href="Lectures/pdf/17-Interactions%20%26%20Interactive%20Storytelling.pdf">Interactions &amp; interactive storytelling</a></div></div>
+<div class="cell" data-date="2027-04-01"><div class="dt">Apr 1 &middot; #19</div><div class="t"><a href="Lectures/pdf/18-Networks%26Trees.pdf">Graphs, networks &amp; trees</a></div><p><i>LAB</i><a href="Labs/Lab08/Lab08.zip">Lab 8: network visualization: has the Senate become more polarized? (notebook + data, .zip)</a></p><p><i>DATA</i><a href="datasets.html#senate">senate</a></p><p class="dl"><i>DUE</i>Lab 8 due Sun</p></div>
+<div class="wk">Week 12<small>Apr 6–8</small></div>
+<div class="cell" data-date="2027-04-06"><div class="dt">Apr 6 &middot; #20</div><div class="t"><a href="Lectures/pdf/19-Infographics.pdf">Infographics</a></div></div>
+<div class="cell" data-date="2027-04-08"><div class="dt">Apr 8 &middot; #21</div><div class="t"><a href="Lectures/pdf/19p2-Infographics.pdf">Infographics II: principles of design</a></div><p><i>LAB</i>Lab 9: sketch a data story, then make it interactive (ipywidgets) <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab09_widgets/Lab09_blank_sketch_widgets.ipynb">nbviewer</a> &middot; <a href="Labs/Lab09_widgets/Lab09_blank_sketch_widgets.ipynb" download>download .ipynb</a>)</span></p><p><i>DATA</i><a href="datasets.html#gapminder">gapminder</a>, <a href="datasets.html#fandango">fandango</a>, <a href="datasets.html#births">births</a>, <a href="datasets.html#majors">college majors</a>, <a href="datasets.html#bechdel">Bechdel</a>, <a href="datasets.html#airlines">airline safety</a></p><p class="dl"><i>DUE</i>Lab 9 due Sun</p></div>
+<div class="wk">Week 13<small>Apr 13–15</small></div>
+<div class="cell" data-date="2027-04-13"><div class="dt">Apr 13 &middot; #22</div><div class="t"><a href="Lectures/pdf/20-Science%20Visualizations.pdf">Science visualizations</a></div></div>
+<div class="cell" data-date="2027-04-15"><div class="dt">Apr 15 &middot; #23</div><div class="t">Data journalism</div><p><i>LAB</i>Lab 10 (light): annotating charts in matplotlib <span class="sub">(<a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Labs/Lab10/Lab10_blank_annotation.ipynb">nbviewer</a> &middot; <a href="Labs/Lab10/Lab10_blank_annotation.ipynb" download>download .ipynb</a>)</span></p><p><i>DATA</i><a href="datasets.html#bakeoff-bakers">Bake Off bakers</a>, <a href="datasets.html#bakeoff-ratings">Bake Off ratings</a></p><p class="dl"><i>DUE</i>P2 narrative structure due Sun; Lab 10 due Sun</p></div>
+<div class="wk">Week 14<small>Apr 20–22</small></div>
+<div class="cell" data-date="2027-04-20"><div class="dt">Apr 20 &middot; #24</div><div class="t">Data quality &amp; deceptive plots</div></div>
+<div class="cell" data-date="2027-04-22"><div class="dt">Apr 22 &middot; #25</div><div class="t">Ethics &amp; rhetoric</div><p><i>CLASS</i>Project 2 design critique</p><p class="dl"><i>DUE</i>P2 sketches in class; P2 critique reflection due Sun</p></div>
+<div class="wk">Week 15<small>Apr 27–29</small></div>
+<div class="cell" data-date="2027-04-27"><div class="dt">Apr 27 &middot; #26</div><div class="t">Project 2 work session <span class="sub">(optional: alluvial diagrams: <a href="https://nbviewer.org/github/smgroves/DS2003-S27/blob/main/Class%20activities/Alluvial%20diagrams/alluvial_diagrams.ipynb">nbviewer</a> &middot; <a href="Class%20activities/Alluvial%20diagrams/alluvial_diagrams.ipynb" download>download .ipynb</a>)</span></div><p class="dl"><i>DUE</i>P2 slides due Wed 4/28</p></div>
+<div class="cell" data-date="2027-04-29"><div class="dt">Apr 29 &middot; #27</div><div class="t">Project 2 presentations, day 1</div></div>
+<div class="wk">Week 16<small>May 4</small><span class="unit">Final week</span></div>
+<div class="cell" data-date="2027-05-04"><div class="dt">May 4 &middot; #28</div><div class="t">Project 2 presentations, day 2, Last class: Worst Chart Contest 🍕</div><p class="dl"><i>DUE</i>P2 final notebook + infographic / science vis due (exam period, date TBA)</p></div>
+<div class="cell off"></div>
+</div>
+</main>
+<script>
+(function(){
+  var t = new Date(); t.setHours(0,0,0,0); var next = null;
+  document.querySelectorAll('[data-date]').forEach(function(el){
+    var d = new Date(el.getAttribute('data-date') + 'T00:00:00');
+    if (d > t) el.classList.add('later');
+    if (d >= t && !next && !el.classList.contains('off')) { next = el; el.classList.add('next'); }
+  });
+})();
+</script>
+</body>
+</html>

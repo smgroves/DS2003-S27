@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hunt Control</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@700&display=swap">
+<link rel="stylesheet" href="hunt.css">
+<style>
+main { max-width: 1000px; margin: 0 auto; padding: 20px 16px 40px; display: grid; gap: 16px; }
+.top { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.top h1 { font-size: 24px; }
+.links { font-size: 14px; display: flex; gap: 14px; }
+.links button { background: none; color: var(--purple); padding: 0; font-weight: 600; text-decoration: underline; }
+form.new { display: grid; gap: 10px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row select { width: auto; }
+.now { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+.now .p { font: 700 18px/1.3 "Source Serif 4", Georgia, serif; }
+.queue { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.item { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px; display: grid; gap: 6px; }
+.item.approved { border: 2px solid var(--good); }
+.item.rejected { opacity: 0.45; }
+.item img { width: 100%; height: 220px; object-fit: contain; background: var(--bg); border-radius: 6px; cursor: zoom-in; }
+.item .nm { font-weight: 700; overflow-wrap: anywhere; }
+.item .t { font: 12px ui-monospace, Menlo, monospace; color: var(--mute); }
+.item .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.item .acts .star { grid-column: 1 / -1; background: var(--paper); color: var(--gold); border: 1px solid var(--gold); }
+.item.starred { border: 3px solid var(--gold); }
+.item.starred .acts .star { background: var(--gold); color: #fff; }
+.save { margin-top: 8px; display: flex; gap: 12px;
+  align-items: center; flex-wrap: wrap; font-size: 14px; }
+.save .done { color: var(--good); font-weight: 700; }
+.now select { width: auto; font-size: 14px; padding: 6px 8px; }
+.item .acts button { padding: 8px; font-size: 14px; }
+.big { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: grid; place-items: center; z-index: 9; cursor: zoom-out; }
+.big img { max-width: 96vw; max-height: 94vh; }
+.err { color: var(--bad); }
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="prompts.js"></script>
+<script src="hunt.js"></script>
+<script>
+const app = document.getElementById("app");
+let pin = Hunt.session.get("hunt-pin");
+let allRounds = [], rounds = [], round = null, subs = [], roundKey = "", queueKey = "";
+let lobbyShowing = false; // projector is on the QR screen
+let viewId = null;        // which round the page is showing; null = the latest
+let showNames = false;    // "show names in the record" checkbox
+
+function login(msg) {
+  app.innerHTML = `<h1>Hunt Control</h1>
+    <form class="card new" id="login"><label for="pin"><b>Host PIN</b></label>
+      <input id="pin" type="password" autocomplete="current-password" required>
+      <button type="submit">Unlock</button>${msg ? `<div class="err">${Hunt.esc(msg)}</div>` : ""}</form>`;
+  document.getElementById("login").onsubmit = async (e) => {
+    e.preventDefault();
+    const p = document.getElementById("pin").value;
+    const { error } = await Hunt.db.rpc("hunt_login", { p_pin: p });
+    if (error) return login(error.message);
+    pin = p; Hunt.session.set("hunt-pin", p); shell();
+  };
+}
+
+function shell() {
+  const opts = (window.HUNT_PROMPTS || []).map((p, i) => `<option value="${i}">${Hunt.esc(p)}</option>`).join("");
+  app.innerHTML = `
+    <div class="top"><h1>Hunt Control</h1>
+      <div class="links"><a href="screen.html" target="_blank">Open projector screen ↗</a>
+        <a href="./" target="_blank">Student page ↗</a><button id="lock">Lock</button></div></div>
+    <div class="card now" id="lobby"></div>
+    <div class="card" id="now"></div>
+    <form class="card new" id="new">
+      <div class="eyebrow">Start a new round</div>
+      <select id="preset"><option value="">Pick a prompt…</option>${opts}</select>
+      <textarea id="prompt" placeholder="…or type your own prompt" required></textarea>
+      <div class="row"><label for="secs">Time limit</label>
+        <select id="secs"><option value="">None</option><option value="60">1:00</option>
+          <option value="90" selected>1:30</option><option value="120">2:00</option><option value="180">3:00</option></select>
+        <button type="submit">Start round</button><span id="newmsg" class="err"></span></div>
+    </form>
+    <div class="card" id="savebox" hidden></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Submissions this round, in the order they came in.
+      Tap <b>Show</b> to put one on the projector, <b>★ Best</b> to highlight it.</div><div class="queue" id="queue"></div></div>`;
+
+  document.getElementById("lock").onclick = () => { Hunt.session.del("hunt-pin"); pin = null; login(); };
+  document.getElementById("preset").onchange = (e) => {
+    if (e.target.value !== "") document.getElementById("prompt").value = HUNT_PROMPTS[e.target.value];
+  };
+  document.getElementById("new").onsubmit = async (e) => {
+    e.preventDefault();
+    const secs = document.getElementById("secs").value;
+    const { error } = await Hunt.db.rpc("hunt_new_round", {
+      p_pin: pin, p_prompt: document.getElementById("prompt").value.trim(),
+      p_seconds: secs ? Number(secs) : null });
+    document.getElementById("newmsg").textContent = error ? error.message : "";
+    if (!error) { viewId = null; showNames = false; document.getElementById("prompt").value = ""; document.getElementById("preset").value = ""; refresh(); }
+  };
+  document.getElementById("queue").onclick = onQueueClick;
+  roundKey = queueKey = "";
+  refresh();
+}
+
+function drawLobby() {
+  const el = document.getElementById("lobby");
+  el.innerHTML = `<div><div class="eyebrow">Projector</div>
+      <div>${lobbyShowing ? "Showing the QR code and definitions." : "Showing the current round."}</div></div>
+    <div class="row"><button class="ghost" id="showqr" ${lobbyShowing ? "disabled" : ""}>Show QR screen</button>
+      <button class="ghost" id="reset">Reset round numbers</button></div>`;
+  document.getElementById("reset").onclick = (e) => {
+    if (confirm("Start numbering from Round 1 again? Earlier rounds and the record are kept, and the projector switches to the QR screen."))
+      showLobby(e.target, 0);
+  };
+  document.getElementById("showqr").onclick = (e) => showLobby(e.target, null);
+}
+
+// The QR screen is stored as a blank round, closed straight away so nobody can submit to it.
+// seconds = 0 also marks a round-number reset.
+async function showLobby(btn, seconds) {
+  btn.disabled = true;
+  const { data: id, error } = await Hunt.db.rpc("hunt_new_round", { p_pin: pin, p_prompt: "", p_seconds: seconds });
+  if (!error) await Hunt.db.rpc("hunt_close_round", { p_pin: pin, p_round: id });
+  else { btn.disabled = false; alert(error.message); }
+  refresh();
+}
+
+function label(r) {
+  const day = new Date(r.started_at).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return `${day} · Round ${Hunt.roundNumber(allRounds, r)}`;
+}
+
+function drawNow() {
+  const el = document.getElementById("now"), box = document.getElementById("savebox");
+  box.hidden = !round;
+  if (!round) { el.innerHTML = `<span class="muted">No rounds yet. Start one below.</span>`; return; }
+  const latest = round.id === rounds[0].id && !lobbyShowing;
+  const open = latest && Hunt.isOpen(round), left = Hunt.secondsLeft(round);
+  const pending = subs.filter((x) => x.status === "pending").length;
+  const picker = rounds.length > 1 ? `<select id="pickround">${rounds.map((r) =>
+    `<option value="${r.id}" ${r.id === round.id ? "selected" : ""}>${label(r)}${r.saved ? " ✓" : ""}: ${Hunt.esc(r.prompt.slice(0, 50))}</option>`).join("")}</select>` : "";
+  el.innerHTML = `<div class="now"><div>
+      <div class="eyebrow">${label(round)} · ${open ? (left != null ? Hunt.fmtClock(left) + " left" : "open") : "closed"}</div>
+      <div class="p">${Hunt.esc(round.prompt)}</div></div>
+    <div class="row">${picker}${open ? `<button class="ghost" id="close">Close round</button>` : ""}</div></div>`;
+  box.innerHTML = `<div class="eyebrow">Save to record · ${label(round)}</div>
+    <div class="save">${round.saved
+      ? `<span class="done">✓ In the record</span><span class="muted">(names ${round.show_names ? "shown" : "hidden"})</span>
+         <a href="record.html#round-${round.id}" target="_blank">View ↗</a><button class="ghost" id="unsave">Remove from record</button>`
+      : `<button id="save">Save to record</button>
+         <label><input type="checkbox" id="names" ${showNames ? "checked" : ""}> Show student names</label>
+         <span class="muted">Saves the question and every submission except hidden ones${pending ? `, including <b>${pending} not yet reviewed</b>` : ""}.</span>`}
+    </div>`;
+  const on = (id, f) => { const x = document.getElementById(id); if (x) x.onclick = f; };
+  on("close", async () => { await Hunt.db.rpc("hunt_close_round", { p_pin: pin, p_round: round.id }); refresh(); });
+  on("save", () => saveRound(true));
+  on("unsave", () => saveRound(false));
+  const nm = document.getElementById("names"); if (nm) nm.onchange = () => { showNames = nm.checked; };
+  const pr = document.getElementById("pickround");
+  if (pr) pr.onchange = () => { viewId = Number(pr.value) === rounds[0].id ? null : Number(pr.value); refresh(); };
+}
+
+async function saveRound(saved) {
+  const { error } = await Hunt.db.rpc("hunt_save_round",
+    { p_pin: pin, p_round: round.id, p_saved: saved, p_show_names: saved && showNames });
+  if (error) return alert(error.message);
+  refresh();
+}
+
+function drawQueue() {
+  const el = document.getElementById("queue");
+  if (!subs.length) { el.innerHTML = `<span class="muted">Nothing yet.</span>`; return; }
+  const t0 = new Date(round.started_at);
+  el.innerHTML = subs.map((s) => `
+    <div class="item ${s.status} ${s.starred ? "starred" : ""}">
+      <img src="${Hunt.imageUrl(s.path)}" alt="" data-big="${Hunt.esc(s.path)}" loading="lazy">
+      <div class="nm">${Hunt.esc(s.name)}</div>
+      <div class="t">+${((new Date(s.created_at) - t0) / 1000).toFixed(1)}s · <span class="pill ${s.status}">${s.status}</span></div>
+      <div class="acts">
+        <button class="star" data-id="${s.id}" data-star="${!s.starred}">★ ${s.starred ? "Best" : "Mark best"}</button>
+        <button class="ok" data-id="${s.id}" data-st="${s.status === "approved" ? "pending" : "approved"}">${s.status === "approved" ? "Unshow" : "Show"}</button>
+        <button class="no" data-id="${s.id}" data-st="${s.status === "rejected" ? "pending" : "rejected"}">${s.status === "rejected" ? "Undo" : "Hide"}</button>
+      </div></div>`).join("");
+}
+
+async function onQueueClick(e) {
+  const img = e.target.closest("[data-big]");
+  if (img) {
+    const ov = document.createElement("div"); ov.className = "big";
+    ov.innerHTML = `<img src="${Hunt.imageUrl(img.dataset.big)}" alt="">`;
+    ov.onclick = () => ov.remove(); document.body.appendChild(ov); return;
+  }
+  const b = e.target.closest("button[data-id]");
+  if (!b) return;
+  b.disabled = true;
+  const id = Number(b.dataset.id), s = subs.find((x) => x.id === id);
+  const { error } = b.dataset.star
+    ? await Hunt.db.rpc("hunt_set_star", { p_pin: pin, p_id: id, p_star: b.dataset.star === "true" })
+    : await Hunt.db.rpc("hunt_set_status", { p_pin: pin, p_id: id, p_status: b.dataset.st });
+  if (error) { b.disabled = false; alert(error.message); return; }
+  if (s && b.dataset.star) { s.starred = b.dataset.star === "true"; if (s.starred) s.status = "approved"; }
+  else if (s) { s.status = b.dataset.st; if (s.status === "rejected") s.starred = false; }
+  queueKey = JSON.stringify([round.id, subs]); drawQueue(); roundKey = ""; drawNow();
+}
+
+async function refresh() {
+  if (!pin) return;
+  try {
+    const { data: rs, error: rerr } = await Hunt.db.from("hunt_rounds").select("*").order("id", { ascending: false });
+    if (rerr) throw rerr;
+    allRounds = rs;
+    lobbyShowing = Hunt.isLobby(rs[0]);
+    rounds = rs.filter((r) => !Hunt.isLobby(r));
+    round = rounds.find((r) => r.id === viewId) || rounds[0] || null;
+    if (round) {
+      const { data, error } = await Hunt.db.rpc("hunt_list", { p_pin: pin, p_round: round.id });
+      if (error) { if (/PIN/.test(error.message)) { Hunt.session.del("hunt-pin"); pin = null; login(error.message); } return; }
+      subs = data;
+    } else subs = [];
+    const pending = subs.filter((x) => x.status === "pending").length;
+    const rk = JSON.stringify([lobbyShowing, rounds, round && round.id, Hunt.isOpen(round), Hunt.secondsLeft(round), pending]);
+    if (rk !== roundKey) { roundKey = rk; drawNow(); drawLobby(); }
+    const qk = JSON.stringify([round && round.id, subs]);
+    if (qk !== queueKey) { queueKey = qk; drawQueue(); }
+  } catch (e) { /* next poll retries */ }
+}
+
+if (!Hunt.configured) Hunt.notConfigured(app);
+else { pin ? shell() : login(); setInterval(refresh, 2000); }
+</script>
+</body>
+</html>

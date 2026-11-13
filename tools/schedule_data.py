@@ -1,0 +1,257 @@
+"""Schedule data for DS 2003 Spring 2027 (Tue/Thu). Links are repo-relative paths (unencoded).
+
+Built from the Fall 2026 Mon/Wed/Fri schedule: Mon lecture -> Tue; Wed lecture + Fri lab -> Thu.
+In Fall weeks where Monday was a holiday (Labor Day, Fall break), the Wed lecture moves to Tue
+and the Fri lab stays on Thu. Dates follow the UVA 2026-27 academic calendar: courses begin
+Wed Jan 20, spring recess Mar 6-14, courses end Tue May 4."""
+from datetime import date, timedelta
+
+S = "Lectures/"
+L = "Labs/"
+A = "Class activities/"
+P2 = "Project 2/"
+
+def d(m, day): return date(2027, m, day)
+
+# Each class: date, title, plus optional lists of (text, href|None)
+# keys: lecture, activity, lab, reading, deadline. noclass=str for days off.
+WEEKS = [
+  dict(n=1, unit="Unit 1: Exploratory visualization: the building blocks", days=[
+    dict(date=d(1,19), noclass="No class (courses begin Wed 1/20)"),
+    dict(date=d(1,21), lecture=[("Introduction", S+"pdf/01-Intro.pdf"),
+                                ("Python setup", S+"pdf/02_Lab0_python.pdf")],
+         lab=[("Lab 0: Python review", L+"Lab 0/Lab0_blank_python.ipynb")], data=["penguins"],
+         reading=[("Computer setup guide", "DS2003_Computer_Setup_Guide.pdf")],
+         deadline=[("Pre-course survey (Canvas)", None), ("Lab 0 due Sun", None)]),
+  ]),
+  dict(n=2, days=[
+    dict(date=d(1,26), lecture=[("Why we visualize", S+"pdf/03-Why we visualize.pdf")],
+         activity=[("Getting Around NYC", A+"Subway maps/Subway_Map_Wayfinding_Activity.html")]),
+    dict(date=d(1,28), lecture=[("Data types, tables & models", S+"pdf/04-VisualDesign-Data.pdf"),
+                                ("Intro to pandas", S+"pdf/05-Pandas_lab.pdf")],
+         activity=[("Levels of measurement sort", None),
+                   ("Simpson's Paradox", A+"simpsons-paradox/")],
+         lab=[("Lab 1: pandas & data types", L+"Lab01/Lab01_blank_pandas.ipynb"),
+              ("rubric", L+"Lab01/Lab01_Rubric.html")], data=["volcanoes"],
+         reading=[("A Tour through the Visualization Zoo", "Readings/3-TourThroughVisualizationZoo.pdf")],
+         deadline=[("Project 1 assigned", "Project 1/Project1_Exploratory_Analysis.md"),
+                   ("Lab 1 due Sun", None)]),
+  ]),
+  dict(n=3, days=[
+    dict(date=d(2,2), lecture=[("Visual encodings & scale", S+"pdf/06-VisualDesign-encodings+07+matplotlib_students.pdf")],
+         reading=[("Vis Zoo discussion post", None)]),
+    dict(date=d(2,4), lecture=[("Encodings & scale, day 2", S+"pdf/07-encodings_scale_part2.pdf")],
+         activity=[("Decoding charts", None)],
+         lab=[("Lab 2: grouping & aggregating", L+"Lab02/Lab02_blank.ipynb")],
+         data=["fastfood", "flights"],
+         deadline=[("P1 topic & dataset due Sun", None), ("Lab 2 due Sun", None)]),
+  ]),
+  dict(n=4, days=[
+    dict(date=d(2,9), lecture=[("Expressiveness & effectiveness", S+"pdf/08-VisualDesign-Scale_Effectiveness Principles.pdf")]),
+    dict(date=d(2,11), lecture=[("Color", S+"pdf/09-color.pdf"),
+                                ("Matplotlib", S+"pdf/10_matplotlib_lab.pdf")],
+         activity=[("Colormap Designer: guided sandbox", A+"colormap designer/Colormap Designer - Guided Sandbox.html"),
+                   ("Colormap Designer: assignment", A+"colormap designer/Colormap Designer.html"),
+                   ("notebook", A+"colormap designer/colormap_making.ipynb")],
+         lab=[("Lab 3: anatomy of a figure", L+"Lab03/Lab03_blank_in class.ipynb")],
+         data=["penguins", "fastfood", "flights", "volcanoes"],
+         deadline=[("Bad-viz discussion post due", None), ("Colormap activity due", None),
+                   ("End-of-unit-1 survey due Sat", None), ("Lab 3 due Sun", None)]),
+  ]),
+  dict(n=5, days=[
+    dict(date=d(2,16), lecture=[("Perception I", S+"pdf/11-Perception-partI.pdf")]),
+    dict(date=d(2,18), lecture=[("Perception II: Gestalt principles", S+"pdf/12-Perception-partII.pdf")],
+         activity=[("One chart, one flaw", None)],
+         lab=[("Lab 4: encodings, color & chart types", L+"Lab4/Lab04_blank.ipynb")],
+         data=["penguins", "flights", "fastfood"],
+         reading=[("The chartjunk debate", "Readings/the_chartjunk_debate.pdf")],
+         deadline=[("Lab 4 due Sun", None)]),
+  ]),
+  dict(n=6, days=[
+    dict(date=d(2,23), lecture=[("Visual tasks: from questions to sketches", S+"pdf/13-Visual Tasks.pdf")],
+         activity=[("Question storm", None)], data=["fastfood"]),
+    dict(date=d(2,25), lecture=[("Applications", None)],
+         activity=[("Fixing bad charts", A+"data_for_bad_charts/9_31_Fixing bad charts.docx"), ("charts", "bad-charts.html")],
+         lab=[("Lab 5: bad chart redesign", L+"Lab05/Lab05_blank_fixing_bad_design.ipynb"), ("charts", "bad-charts.html")],
+         data=["bad-charts"],
+         deadline=[("P1 question sketches", None), ("Lab 5 due Sun", None)]),
+  ]),
+  dict(n=7, days=[
+    dict(date=d(3,2), lecture=[("Statistical plots & uncertainty", S+"pdf/14-Statistical Plots and Uncertainty.pdf")]),
+    dict(date=d(3,4), lab=[("Lab 6: statistical plots", L+"Lab06/Lab06_blank.ipynb")], data=["penguins"],
+         deadline=[("Lab 6 due Sun", None)]),
+  ]),
+  dict(n=8, days=[
+    dict(date=d(3,9), noclass="No class (Spring recess)"),
+    dict(date=d(3,11), noclass="No class (Spring recess)"),
+  ]),
+  dict(n=9, unit="Unit 2: Explanatory visualization: storytelling", days=[
+    dict(date=d(3,16), activity=[("Project 1 presentations, day 1", None)]),
+    dict(date=d(3,18), activity=[("Project 1 presentations, day 2", None)], deadline=[("Project 1 due", None)]),
+  ]),
+  dict(n=10, days=[
+    dict(date=d(3,23), lecture=[("Storytelling", S+"pdf/15-Storytelling.pdf")],
+         deadline=[("P2 introduced", P2+"Project2_Interactive_Notebook.html"),
+                   ("rubric", P2+"Project2_Rubric.html")]),
+    dict(date=d(3,25), lecture=[("Narrative structures & interaction: why & when", S+"pdf/16-Storytelling & Interactivity.pdf")],
+         activity=[("Screenshot Hunt", "hunt/record.html")],
+         lab=[("Lab 7: interactive EDA with Plotly: NBA 2025-26 (notebook + data, .zip)", L+"Lab07/Lab07_basketball_plotly.zip")],
+         data=["nba"],
+         reading=[("Narrative Visualization (Segel & Heer)", "Readings/11-Narrative-InfoVis.pdf")],
+         deadline=[("P2 groups picked", None), ("P2 proposal due Sun", None), ("Lab 7 due Sun", None)]),
+  ]),
+  dict(n=11, days=[
+    dict(date=d(3,30), lecture=[("Interactions & interactive storytelling", S+"pdf/17-Interactions & Interactive Storytelling.pdf")]),
+    dict(date=d(4,1), lecture=[("Graphs, networks & trees", S+"pdf/18-Networks&Trees.pdf")],
+         lab=[("Lab 8: network visualization: has the Senate become more polarized? (notebook + data, .zip)", L+"Lab08/Lab08.zip")],
+         data=["senate"], deadline=[("Lab 8 due Sun", None)]),
+  ]),
+  dict(n=12, days=[
+    dict(date=d(4,6), lecture=[("Infographics", S+"pdf/19-Infographics.pdf")]),
+    dict(date=d(4,8), lecture=[("Infographics II: principles of design", S+"pdf/19p2-Infographics.pdf")],
+         lab=[("Lab 9: sketch a data story, then make it interactive (ipywidgets)", L+"Lab09_widgets/Lab09_blank_sketch_widgets.ipynb")],
+         data=["gapminder", "fandango", "births", "majors", "bechdel", "airlines"],
+         deadline=[("Lab 9 due Sun", None)]),
+  ]),
+  dict(n=13, days=[
+    dict(date=d(4,13), lecture=[("Science visualizations", S+"pdf/20-Science Visualizations.pdf")]),
+    dict(date=d(4,15), lecture=[("Data journalism", None)],
+         lab=[("Lab 10 (light): annotating charts in matplotlib", L+"Lab10/Lab10_blank_annotation.ipynb")],
+         data=["bakeoff-bakers", "bakeoff-ratings"],
+         deadline=[("P2 narrative structure due Sun", None), ("Lab 10 due Sun", None)]),
+  ]),
+  dict(n=14, days=[
+    dict(date=d(4,20), lecture=[("Data quality & deceptive plots", None)]),
+    dict(date=d(4,22), lecture=[("Ethics & rhetoric", None)],
+         activity=[("Project 2 design critique", None)],
+         deadline=[("P2 sketches in class", None), ("P2 critique reflection due Sun", None)]),
+  ]),
+  dict(n=15, days=[
+    dict(date=d(4,27), activity=[("Project 2 work session", None),
+                                 ("optional: alluvial diagrams", A+"Alluvial diagrams/alluvial_diagrams.ipynb")],
+         deadline=[("P2 slides due Wed 4/28", None)]),
+    dict(date=d(4,29), activity=[("Project 2 presentations, day 1", None)]),
+  ]),
+  dict(n=16, unit="Final week", days=[
+    dict(date=d(5,4), activity=[("Project 2 presentations, day 2", None),
+                                ("Last class: Worst Chart Contest 🍕", None)],
+         deadline=[("P2 final notebook + infographic / science vis due (exam period, date TBA)", None)]),
+  ]),
+]
+
+# number classes sequentially
+_c = 0
+for w in WEEKS:
+    for day in w["days"]:
+        if "noclass" not in day:
+            _c += 1
+            day["cls"] = _c
+
+def week_range(w):
+    ds = [x["date"] for x in w["days"]]
+    a, b = ds[0], ds[-1]
+    if a == b: return a.strftime("%b %-d")
+    if a.month == b.month: return f"{a.strftime('%b %-d')}–{b.day}"
+    return f"{a.strftime('%b %-d')} – {b.strftime('%b %-d')}"
+
+# ---- datasets: id -> info. "files" are (label, href) with href repo-relative or a URL ----
+DATASETS = [
+  dict(id="penguins", name="Palmer penguins", label="penguins",
+       desc="Measurements of 344 penguins (three species) from three islands in the Palmer Archipelago, Antarctica: bill length and depth, flipper length, body mass, sex.",
+       size="344 rows × 7 columns",
+       files=[("penguins.csv (seaborn-data)", "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv")],
+       load='pip install palmerpenguins, then from palmerpenguins import load_penguins'),
+  dict(id="volcanoes", name="Smithsonian Holocene volcanoes", label="volcanoes",
+       desc="The Smithsonian Global Volcanism Program's list of volcanoes active in the last ~12,000 years: name, country, region, type, elevation, and how strong the evidence of eruption is.",
+       size="1,328 rows × 20 columns",
+       files=[("Smithsonian_VOTW_Holocene_Volcanoes.csv", "https://gist.githubusercontent.com/mattkram/9684863843254402942dfede27af2cb7/raw/2590dd8185b833aacf247c0595edbb07a025a6d7/Smithsonian_VOTW_Holocene_Volcanoes.csv")]),
+  dict(id="fastfood", name="Fast food nutrition", label="fastfood",
+       desc="Nutrition facts for 515 menu items from eight fast food chains: calories, fat, sodium, carbs, sugar, protein, and a few vitamins.",
+       size="515 rows × 18 columns · 48 KB",
+       files=[("fastfood.csv", "Data/fastfood.csv")]),
+  dict(id="flights", name="NYC flights, 2013", label="flights",
+       desc="Every flight that departed New York City's three airports (JFK, LGA, EWR) in 2013: scheduled and actual times, delays, carrier, origin, destination, distance.",
+       size="336,776 rows × 19 columns · 33 MB",
+       files=[("flights.csv", "Data/flights.csv")],
+       load="pip install nycflights13, then import nycflights13 as nf; nf.flights"),
+  dict(id="gapminder", name="Gapminder", label="gapminder",
+       desc="Life expectancy, population, and GDP per capita for 142 countries, every five years from 1952 to 2007. Built into Plotly, so there's nothing to download.",
+       size="1,704 rows × 8 columns",
+       files=[],
+       load="import plotly.express as px, then px.data.gapminder()"),
+  dict(id="titanic", name="Titanic passengers", label="titanic",
+       desc="One row per passenger on the Titanic's maiden voyage: ticket class, sex, age, fare, port of embarkation, and whether they survived. A classic for showing how categories combine.",
+       size="891 rows × 15 columns",
+       files=[("titanic.csv (seaborn-data)", "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv")]),
+  dict(id="bakeoff-bakers", name="Great British Bake Off: bakers and judging, 2017-2025", label="Bake Off bakers",
+       desc="One row per baker per episode for UK series 8-16 (the Channel 4 years; the file uses Netflix numbering, 5-13): technical-challenge rank, Star Baker and elimination, and a score (-1, 0, +1) for the bake, flavor, and looks of each signature and showstopper bake. The scores were hand-coded by one fan from rewatched episodes; results come from Wikipedia. From Nathan Giusti's BakeOff project (github.com/nathangiusti/BakeOff).",
+       size="678 rows × 16 columns",
+       files=[("data.csv (judging scores)", "https://raw.githubusercontent.com/nathangiusti/BakeOff/main/data_collection/judging/human/data.csv"),
+              ("gbbo_results.csv (weekly results)", "https://raw.githubusercontent.com/nathangiusti/BakeOff/main/analysis/reports/gbbo_results.csv"),
+              ("gbbo_episodes.csv (episode themes)", "https://raw.githubusercontent.com/nathangiusti/BakeOff/main/data_collection/scraping/gbbo_episodes.csv")]),
+  dict(id="bakeoff-ratings", name="Great British Bake Off: viewers per episode, 2010-2019", label="Bake Off ratings",
+       desc="UK viewers (millions) for every episode of series 1-10, within 7 and 28 days of broadcast, with air dates. The show moved from the BBC to Channel 4 in series 8. BARB figures collected in Alison Hill's bakeoff R package, shared by TidyTuesday (2022-10-25).",
+       size="94 rows × 11 columns",
+       files=[("ratings.csv (TidyTuesday)", "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-10-25/ratings.csv")]),
+  dict(id="superstore", name="Superstore sales", label="superstore",
+       desc="Orders from a fictional US office-supply retailer (Tableau's classic sample data): region, segment, category and sub-category, sales, profit, quantity, order date. Its nested categories make it a good fit for tree charts.",
+       size="8,399 rows × 8 columns · 640 KB",
+       files=[("superstore.csv", "Data/superstore.csv")]),
+  dict(id="nba", name="NBA players and league averages, 2025-26", label="NBA",
+       desc="Every NBA player from the 2025-26 regular season with at least 20 games and 15 minutes per game: team, position, age, and per-game stats (points, rebounds, assists, shooting). A roster table adds each player's team name, BPM, and VORP (one row per player per team, so traded players appear twice). A third table has league-wide per-game averages for every season since 1946-47. From Basketball-Reference (basketball-reference.com).",
+       size="350 players · 661 roster rows · 80 seasons · 75 KB",
+       files=[("nba_2025_26.csv", "Labs/Lab07/nba_2025_26.csv"),
+              ("nba_2025_26_rosters.csv", "Labs/Lab07/nba_2025_26_rosters.csv"),
+              ("nba_league_averages.csv", "Labs/Lab07/nba_league_averages.csv")]),
+  dict(id="senate", name="US Senate voting agreement, 1973-2024", label="senate",
+       desc="Seven Senates, about every eight years from 1973-74 to 2023-24: a table of senators (name, party, state) and a table of every pair of senators in the same Senate with how often they voted the same way on roll-call votes. Built from Voteview's congressional roll-call records (voteview.com). Its pairs make it a natural fit for network charts.",
+       size="693 senator rows · 34,254 pairs · 900 KB",
+       files=[("senators.csv", "Labs/Lab08/senators.csv"),
+              ("senate_agreement.csv", "Labs/Lab08/senate_agreement.csv"),
+              ("prep_senate.py (how the pairs were computed)", "Labs/Lab08/src/prep_senate.py")]),
+  dict(id="fandango", name="Movie ratings: Fandango vs. critics", label="fandango",
+       desc="146 films from 2015 with their ratings on Fandango, Rotten Tomatoes (critics and users), Metacritic (critics and users), and IMDb, plus versions rescaled to five stars. From FiveThirtyEight's data repository (github.com/fivethirtyeight/data).",
+       size="146 rows × 22 columns · 15 KB",
+       files=[("fandango_score_comparison.csv", "Data/fandango_score_comparison.csv")]),
+  dict(id="births", name="US births by day, 2000-2014", label="births",
+       desc="The number of births in the US on every day from 2000 to 2014 (year, month, day of month, day of week), from Social Security Administration data. From FiveThirtyEight's data repository (github.com/fivethirtyeight/data).",
+       size="5,479 rows × 5 columns · 97 KB",
+       files=[("US_births_2000-2014_SSA.csv", "Data/US_births_2000-2014_SSA.csv")]),
+  dict(id="majors", name="College majors and earnings", label="college majors",
+       desc="173 college majors with the number of recent graduates, share of women, employment and unemployment rates, and median and percentile earnings, from the American Community Survey. From FiveThirtyEight's data repository (github.com/fivethirtyeight/data).",
+       size="173 rows × 21 columns · 27 KB",
+       files=[("recent-grads.csv", "Data/recent-grads.csv")]),
+  dict(id="bechdel", name="Bechdel test and box office, 1970-2013", label="Bechdel",
+       desc="1,794 films from 1970 to 2013: whether each passes the Bechdel test (and why not, if it fails), with budget and domestic and international gross, also in 2013 dollars. From FiveThirtyEight's data repository (github.com/fivethirtyeight/data).",
+       size="1,794 rows × 15 columns · 208 KB",
+       files=[("bechdel_movies.csv", "Data/bechdel_movies.csv")]),
+  dict(id="airlines", name="Airline safety, 1985-2014", label="airline safety",
+       desc="56 airlines with their incidents, fatal accidents, and fatalities in 1985-1999 and 2000-2014, plus available seat-kilometers flown per week (for comparing airlines of different sizes). From FiveThirtyEight's data repository (github.com/fivethirtyeight/data).",
+       size="56 rows × 8 columns · 2 KB",
+       files=[("airline-safety.csv", "Data/airline-safety.csv")]),
+  dict(id="bad-charts", name="Bad chart redesign", label="bad-chart data",
+       desc="Data behind the four charts from the Fixing bad charts activity (Wed 9/30) and Lab 5. Some are collected from the original source; where the raw data wasn't available, it's a synthetic best guess.",
+       groups=[
+         ("Chart A: US household income & financial assets", [
+            ("tang2023_fig4_household_income.csv", "Data/tang2023_fig4_household_income.csv"),
+            ("tang2023_fig3_financial_assets_pct_gdp.csv", "Data/tang2023_fig3_financial_assets_pct_gdp.csv")]),
+         ("Chart B: ranked game rating over time", [
+            ("gaming_scores.csv", "Data/gaming_scores.csv")]),
+         ("Chart C: Florida firearm murders & national crime rates", [
+            ("reuters_florida_firearm_murders.csv", "Data/reuters_florida_firearm_murders.csv"),
+            ("florida_population.csv", "Data/florida_population.csv"),
+            ("pew_2013_crime_rates.csv", "Data/pew_2013_crime_rates.csv")]),
+         ("Chart D: slime mold traits by group (synthetic)", [
+            ("biology_dataset_synthetic.csv", "Data/biology_dataset_synthetic.csv")]),
+       ]),
+]
+DS = {x["id"]: x for x in DATASETS}
+
+def used_in(ds_id):
+    out = []
+    for w in WEEKS:
+        for day in w["days"]:
+            if ds_id in day.get("data", []):
+                what = (day.get("lab") or day.get("activity") or day.get("lecture"))[0][0]
+                out.append((day["date"], what))
+    return out
